@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark" style="scroll-behavior:smooth;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova AI - Intelligent Chat & Creative Studio</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=6">
+</head>
+<body>
+
+    <!-- Interactive Particle Background Canvas -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+    <!-- Ambient Glowing Background Orbs -->
+    <div class="ambient-glow">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div class="glow-orb glow-orb-3"></div>
+    </div>
+
+    <!-- ================================================================
+         1. LANDING PAGE
+         ================================================================ -->
+    <div class="landing-view" id="landingView">
+
+        <nav class="landing-nav">
+            <div class="landing-brand">
+                <div class="brand-logo-icon"><i class="fas fa-brain"></i></div>
+                <div class="brand-text">
+                    <h2>Nova AI</h2>
+                    <span>Multimodal Intelligence</span>
+                </div>
+            </div>
+            <div class="landing-nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#showcase" class="nav-link">Showcase</a>
+            </div>
+            <div class="landing-nav-actions">
+                <button class="landing-theme-btn" id="landingThemeToggle" title="Toggle Brightness / Theme" onclick="toggleTheme()">
+                    <i class="fas fa-sun" id="landingThemeIcon"></i>
+                </button>
+                <button class="btn-primary-glow" onclick="enterApp()">
+                    <span>Get Started</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </nav>
+
+        <section class="landing-hero">
+            <div class="hero-badge">
+                <i class="fas fa-sparkles"></i>
+                <span>NEXT-GEN MULTIMODAL AI</span>
+                <span class="hero-pill-live"><span class="badge-dot dot-green"></span> Live</span>
+            </div>
+            <h1 class="hero-title">
+                Supercharged Intelligence.<br>
+                <span class="gradient-text">Limitless Creativity.</span>
+            </h1>
+            <p class="hero-subtitle">
+                Nova AI pairs ultra-fast <strong>Groq GPT-OSS 120B</strong> reasoning with high-fidelity <strong>Flux.1</strong> image synthesis. Converse, code, analyze, and generate stunning visuals — all in one cyber-chic workspace.
+            </p>
+            <div class="hero-cta-group">
+                <button class="btn-hero-cta" onclick="enterApp()">
+                    <i class="fas fa-bolt"></i>
+                    <span>Get Started — It's Free</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+            <div class="hero-metrics-strip">
+                <div class="metric-item">
+                    <div class="metric-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="metric-content"><strong>Sub-Second</strong><span>Groq 120B Inference</span></div>
+                </div>
+                <div class="metric-divider"></div>
+                <div class="metric-item">
+                    <div class="metric-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <div class="metric-content"><strong>Flux.1 Engine</strong><span>8K Multi-Style Art</span></div>
+                </div>
+                <div class="metric-divider"></div>
+                <div class="metric-item">
+                    <div class="metric-icon"><i class="fas fa-microphone"></i></div>
+                    <div class="metric-content"><strong>Voice & Audio</strong><span>Dictation + TTS</span></div>
+                </div>
+                <div class="metric-divider"></div>
+                <div class="metric-item">
+                    <div class="metric-icon"><i class="fas fa-shield-halved"></i></div>
+                    <div class="metric-content"><strong>100% Private</strong><span>Local Sessions</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="landing-section" id="features">
+            <div class="section-header">
+                <span class="section-tag">CAPABILITIES</span>
+                <h2>Engineered for Power & Elegance</h2>
+                <p>Everything you need for creative brainstorming, deep research, coding, and digital art generation.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-card-icon icon-purple"><i class="fas fa-brain"></i></div>
+                    <h3>Conversational Mastery</h3>
+                    <p>Powered by Groq's 120B model with multi-turn memory. Clean Markdown, headers, bullet points, and tables.</p>
+                    <div class="feature-card-footer">
+                        <span><i class="fas fa-check"></i> Multi-turn memory</span>
+                        <span><i class="fas fa-check"></i> Markdown formatting</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon icon-cyan"><i class="fas fa-code"></i></div>
+                    <h3>Syntax-Highlighted Code</h3>
+                    <p>Generate, explain, and debug code in Python, JavaScript, HTML, Rust, SQL, and C++ with one-click copy.</p>
+                    <div class="feature-card-footer">
+                        <span><i class="fas fa-check"></i> 1-Click Copy</span>
+                        <span><i class="fas fa-check"></i> 50+ languages</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon icon-pink"><i class="fas fa-palette"></i></div>
+                    <h3>Flux.1 Creative Studio</h3>
+                    <p>Generate high-res digital art with 8 curated artistic presets: Photorealistic 8K, Cyberpunk Neon, Anime, Fantasy, and more.</p>
+                    <div class="feature-card-footer">
+                        <span><i class="fas fa-check"></i> 8 Style Presets</span>
+                        <span><i class="fas fa-check"></i> Fullscreen Lightbox</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon icon-emerald"><i class="fas fa-microphone-lines"></i></div>
+                    <h3>Voice & Accessibility</h3>
+                    <p>Speak naturally using microphone voice recognition, or listen to responses with Web Speech audio synthesis.</p>
+                    <div class="feature-card-footer">
+                        <span><i class="fas fa-check"></i> Voice Input</span>
+                        <span><i class="fas fa-check"></i> Text-to-Speech</span>
+                    </div>
+                </div>
+            </div>
+            <div class="section-nav-row">
+                <a href="#" class="btn-section-nav" onclick="document.getElementById('landingView').scrollTo({top:0,behavior:'smooth'});return false;">
+                    <i class="fas fa-arrow-up"></i> Back to Top
+                </a>
+                <a href="#showcase" class="btn-section-nav">
+                    <i class="fas fa-arrow-down"></i> Showcase
+                </a>
+            </div>
+        </section>
+
+        <section class="landing-section" id="showcase">
+            <div class="section-header">
+                <span class="section-tag">LIVE SHOWCASE</span>
+                <h2>What Will You Create?</h2>
+                <p>Click any prompt to immediately launch the app and generate it live.</p>
+            </div>
+            <div class="showcase-grid">
+                <div class="showcase-card" onclick="tryShowcase('generate a cyberpunk samurai standing in a rainy neo-Tokyo street with neon lights', 'image', 'cyberpunk')">
+                    <div class="showcase-badge badge-image"><i class="fas fa-palette"></i> Flux Image</div>
+                    <h3>Cyberpunk Samurai in Neon Rain</h3>
+                    <p>"A futuristic samurai in rain-slicked neo-Tokyo streets with glowing violet katana."</p>
+                    <div class="showcase-action"><span>Try Prompt</span><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="showcase-card" onclick="tryShowcase('create an image of a majestic crystal dragon flying over floating fantasy islands at sunset', 'image', 'fantasy')">
+                    <div class="showcase-badge badge-image"><i class="fas fa-dragon"></i> Flux Image</div>
+                    <h3>Crystal Dragon over Floating Islands</h3>
+                    <p>"A mythic crystal dragon with iridescent scales soaring over floating islands at golden sunset."</p>
+                    <div class="showcase-action"><span>Try Prompt</span><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="showcase-card" onclick="tryShowcase('Write a clean Python script using asyncio and httpx to fetch multiple URLs in parallel with error handling', 'text')">
+                    <div class="showcase-badge badge-text"><i class="fas fa-code"></i> Python Code</div>
+                    <h3>Async Python Concurrent Fetcher</h3>
+                    <p>"High-performance asynchronous URL fetcher with asyncio, rate limits, and structured error handling."</p>
+                    <div class="showcase-action"><span>Try Prompt</span><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="showcase-card" onclick="tryShowcase('Explain how quantum computing works using a real-world analogy in 3 paragraphs', 'text')">
+                    <div class="showcase-badge badge-text"><i class="fas fa-brain"></i> Deep Insight</div>
+                    <h3>Quantum Computing Explained</h3>
+                    <p>"Clear breakdown of superposition, entanglement, and quantum qubits using an intuitive maze metaphor."</p>
+                    <div class="showcase-action"><span>Try Prompt</span><i class="fas fa-arrow-right"></i></div>
+                </div>
+            </div>
+            <div class="section-nav-row">
+                <a href="#" class="btn-section-nav" onclick="document.getElementById('landingView').scrollTo({top:0,behavior:'smooth'});return false;">
+                    <i class="fas fa-arrow-up"></i> Back to Top
+                </a>
+                <a href="#features" class="btn-section-nav">
+                    <i class="fas fa-arrow-up"></i> Features
+                </a>
+            </div>
+        </section>
+
+        <section class="landing-cta-banner">
+            <div class="cta-banner-box">
+                <h2>Ready to Experience Nova AI?</h2>
+                <p>Launch the interactive studio now. Generate answers, write code, and craft artwork in seconds.</p>
+                <button class="btn-hero-cta" onclick="enterApp()">
+                    <span>Get Started</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <footer class="landing-footer">
+            <div class="footer-left">
+                <i class="fas fa-brain"></i>
+                <span>Nova AI Studio • Powered by Groq & Flux.1</span>
+            </div>
+            <div class="footer-right">
+                <button class="footer-link-btn" onclick="enterApp()">Launch App</button>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- ================================================================
+         2. MAIN CHAT WORKSPACE
+         ================================================================ -->
+    <div class="app-layout" id="appLayout" style="display:none;">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-badge" onclick="showLandingPage()" style="cursor:pointer;" title="Back to Landing Page">
+                    <div class="brand-logo-icon"><i class="fas fa-brain"></i></div>
+                    <div class="brand-info">
+                        <h2>Nova AI</h2>
+                        <span>Creative Studio</span>
+                    </div>
+                </div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" title="Close Sidebar">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="sidebar-actions">
+                <button class="btn-new-chat" id="btnNewChat">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
+                <div class="search-chats-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-chats-input" id="searchChatsInput" placeholder="Search chats...">
+                </div>
+            </div>
+            <div class="sidebar-history" id="sidebarHistory"></div>
+            <div class="sidebar-nav-tools">
+                <button class="sidebar-nav-btn" onclick="showLandingPage()">
+                    <i class="fas fa-house"></i>
+                    <span>Landing Page</span>
+                </button>
+            </div>
+            <div class="sidebar-footer">
+                <div class="model-pill-badges">
+                    <div class="model-badge-item">
+                        <span><span class="badge-dot dot-green"></span>Groq GPT-OSS 120B</span>
+                        <span style="opacity:0.7;font-size:0.7rem;">LLM</span>
+                    </div>
+                    <div class="model-badge-item">
+                        <span><span class="badge-dot dot-purple"></span>Flux.1 Art Studio</span>
+                        <span style="opacity:0.7;font-size:0.7rem;">Image</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="chat-main">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="header-btn" id="btnToggleSidebar" title="Toggle Sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span class="chat-session-title" id="chatSessionTitle">New Conversation</span>
+                </div>
+                <div class="mode-selector-bar">
+                    <button class="mode-pill active" data-mode="auto" title="Auto-detect">
+                        <i class="fas fa-bolt"></i> Auto
+                    </button>
+                    <button class="mode-pill" data-mode="text" title="Chat Mode">
+                        <i class="fas fa-message"></i> Chat
+                    </button>
+                    <button class="mode-pill" data-mode="image" title="Image Studio">
+                        <i class="fas fa-palette"></i> Image Studio
+                    </button>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="showLandingPage()" title="Landing Page">
+                        <i class="fas fa-house"></i>
+                    </button>
+                    <button class="header-btn" id="btnExportChat" title="Export Markdown">
+                        <i class="fas fa-file-export"></i>
+                    </button>
+                    <button class="header-btn" id="btnClearChat" title="Clear Chat">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                    <button class="header-btn" id="themeToggleBtn" title="Toggle Theme">
+                        <i class="fas fa-sun" id="themeToggleIcon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <section class="chat-messages-container" id="chatMessages">
+                <!-- Rendered dynamically by app.js -->
+            </section>
+
+            <button class="btn-scroll-bottom" id="btnScrollBottom" title="Scroll to bottom">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+
+            <footer class="chat-input-area">
+                <div class="input-container-box">
+                    <div class="input-extra-tools">
+                        <div class="style-selector-wrapper" id="imageStyleWrapper">
+                            <span><i class="fas fa-sliders"></i> Image Style:</span>
+                            <select class="style-dropdown" id="imageStyleSelect">
+                                <option value="default">Default (Raw Prompt)</option>
+                                <option value="photorealistic">📸 Photorealistic 8K</option>
+                                <option value="cyberpunk">🌆 Cyberpunk Neon</option>
+                                <option value="anime">✨ Anime / Manga</option>
+                                <option value="cinematic">🎬 Cinematic Film</option>
+                                <option value="digital-art">🎨 Digital Concept Art</option>
+                                <option value="fantasy">🐉 Fantasy Mythic</option>
+                                <option value="watercolor">🖌️ Watercolor Painting</option>
+                            </select>
+                        </div>
+                        <div id="statusIndicatorText" style="display:flex;align-items:center;gap:5px;">
+                            <span class="badge-dot dot-green"></span> Ready
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <textarea class="chat-textarea" id="chatInput"
+                            placeholder="Ask anything or describe an image to create..." rows="1"></textarea>
+                        <div class="input-action-buttons">
+                            <button class="input-tool-btn" id="btnMic" title="Voice Input">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="btn-send" id="btnSend" title="Send (Enter)">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-footnote">
+                    <span>Press <strong>Enter</strong> to send • <strong>Shift + Enter</strong> for new line • Nova can generate both code/text and Flux images</span>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox-modal" id="lightboxModal">
+        <div class="lightbox-content-box">
+            <button class="lightbox-close-btn" id="lightboxClose" title="Close"><i class="fas fa-xmark"></i></button>
+            <img src="" alt="Fullscreen AI Preview" class="lightbox-img" id="lightboxImg">
+            <div class="lightbox-toolbar">
+                <button class="lightbox-btn" id="lightboxDownloadBtn"><i class="fas fa-download"></i> Download HD</button>
+                <div id="lightboxPrompt" style="color:var(--text-dim);font-size:0.85rem;align-self:center;max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=6"></script>
+
+</body>
+</html>
