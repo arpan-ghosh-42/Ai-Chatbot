@@ -68,13 +68,14 @@ Then open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
 ## How it works
 
-The frontend sends your prompt to `POST /generate`.
+The frontend sends `{ prompt, mode, style, messages }` to `POST /generate`.
 
-- A normal prompt is sent to Groq and displayed as a text response.
-- A prompt containing phrases such as `generate an image`, `create an image`, or `draw an image` is sent to the Flux image endpoint.
+- **Auto** mode: a prompt containing phrases such as `generate an image`, `create an image`, or `draw an image` goes to the Flux image endpoint; anything else goes to Groq.
+- **Text** and **Image** modes force text or image generation regardless of wording.
+- `messages` (the last 8 chat turns) is sent to Groq so follow-up questions keep their context.
+- The selected image style preset is appended to the image prompt.
 - Generated images are saved locally under `static/generated/` and returned to the browser for preview or download.
-
-You can also select **Image** mode in the interface to make image creation explicit.
+- `GET /status` returns `{"ok": true}` for the frontend's health check.
 
 ## Project structure
 

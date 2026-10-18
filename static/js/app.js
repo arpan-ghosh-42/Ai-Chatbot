@@ -356,18 +356,18 @@ function appendMessageToDOM(msg, shouldAnimate = true) {
         if (msg.type === 'image') {
             bodyHtml = `
                 <div class="image-card-container">
-                    <img src="${msg.content}" alt="${escapeHtml(msg.prompt || 'Generated AI image')}" class="generated-image" onclick="openLightbox('${msg.content}', '${escapeHtml(msg.prompt || '')}')" loading="lazy">
+                    <img src="${escapeHtml(msg.content)}" alt="${escapeHtml(msg.prompt || 'Generated AI image')}" class="generated-image" data-image-action="open" data-msg-id="${escapeHtml(msg.id)}" loading="lazy">
                     <div class="image-overlay">
                         <div class="image-overlay-top">
                             <span class="image-badge"><i class="fas fa-wand-magic-sparkles"></i> Flux AI</span>
                             <div class="image-overlay-actions">
-                                <button class="image-action-btn" title="View Fullscreen" onclick="openLightbox('${msg.content}', '${escapeHtml(msg.prompt || '')}')">
+                                <button class="image-action-btn" title="View Fullscreen" data-image-action="open" data-msg-id="${escapeHtml(msg.id)}">
                                     <i class="fas fa-expand"></i>
                                 </button>
-                                <button class="image-action-btn" title="Download Image" onclick="downloadImage('${msg.content}', '${msg.id}.png')">
+                                <button class="image-action-btn" title="Download Image" data-image-action="download" data-msg-id="${escapeHtml(msg.id)}">
                                     <i class="fas fa-download"></i>
                                 </button>
-                                <button class="image-action-btn" title="Copy Prompt" onclick="copyTextToClipboard('${escapeHtml(msg.prompt || '')}', 'Prompt copied!')">
+                                <button class="image-action-btn" title="Copy Prompt" data-image-action="copy" data-msg-id="${escapeHtml(msg.id)}">
                                     <i class="fas fa-copy"></i>
                                 </button>
                             </div>
@@ -434,6 +434,21 @@ function appendMessageToDOM(msg, shouldAnimate = true) {
     }
 }
 
+// Image buttons use data attributes + one delegated listener instead of inline
+// onclick strings, so prompts containing quotes can neither break nor inject code.
+function handleImageAction(event) {
+    const target = event.target.closest('[data-image-action]');
+    if (!target) return;
+    const session = AppState.sessions[AppState.activeSessionId];
+    const msg = session && session.messages.find(m => m.id === target.dataset.msgId);
+    if (!msg) return;
+
+    const action = target.dataset.imageAction;
+    if (action === 'open') openLightbox(msg.content, msg.prompt || '');
+    else if (action === 'download') downloadImage(msg.content, `${msg.id}.png`);
+    else if (action === 'copy') copyTextToClipboard(msg.prompt || '', 'Prompt copied!');
+}
+
 function enhanceCodeBlocksInMessage(messageRow) {
     const preBlocks = messageRow.querySelectorAll('pre');
     preBlocks.forEach((pre, index) => {
@@ -441,6 +456,10 @@ function enhanceCodeBlocksInMessage(messageRow) {
         if (pre.parentElement.classList.contains('code-container')) return;
 
         const code = pre.querySelector('code');
+        // Fall back to highlight.js when the markdown parser didn't highlight the block
+        if (code && typeof hljs !== 'undefined' && !code.querySelector('[class^="hljs-"]')) {
+            try { hljs.highlightElement(code); } catch (e) { }
+        }
         let lang = 'code';
         if (code) {
             code.classList.forEach(cls => {
@@ -482,39 +501,44 @@ function enhanceCodeBlocksInMessage(messageRow) {
 // ============================================================================
 // Message Submission & Backend Call
 // ============================================================================
-async function handleSendMessage() {
+// `options.retryPrompt` re-asks an existing user message without adding a duplicate.
+// (When used as a click handler the first argument is an Event, which has no retryPrompt.)
+async function handleSendMessage(options) {
     if (AppState.isGenerating) return;
 
+    const retryPrompt = options && typeof options.retryPrompt === 'string' ? options.retryPrompt : '';
     const textarea = document.getElementById('chatInput');
-    const prompt = textarea.value.trim();
+    const prompt = retryPrompt || textarea.value.trim();
     if (!prompt) return;
-
-    textarea.value = '';
-    textarea.style.height = 'auto';
 
     const session = AppState.sessions[AppState.activeSessionId];
     if (!session) return;
 
-    // Auto title for the session if it's the first message
-    if (session.messages.length === 0) {
-        session.title = prompt.length > 32 ? prompt.substring(0, 32) + '...' : prompt;
-        document.getElementById('chatSessionTitle').textContent = session.title;
-    }
+    if (!retryPrompt) {
+        textarea.value = '';
+        textarea.style.height = 'auto';
 
-    // 1. Add User Message
-    const userMsg = {
-        id: 'msg_' + Date.now(),
-        role: 'user',
-        type: 'text',
-        content: prompt,
-        timestamp: new Date().toISOString()
-    };
-    session.messages.push(userMsg);
-    session.updatedAt = new Date().toISOString();
-    saveSessions();
-    appendMessageToDOM(userMsg);
-    scrollToBottom(true);
-    renderSidebarSessions();
+        // Auto title for the session if it's the first message
+        if (session.messages.length === 0) {
+            session.title = prompt.length > 32 ? prompt.substring(0, 32) + '...' : prompt;
+            document.getElementById('chatSessionTitle').textContent = session.title;
+        }
+
+        // 1. Add User Message
+        const userMsg = {
+            id: 'msg_' + Date.now(),
+            role: 'user',
+            type: 'text',
+            content: prompt,
+            timestamp: new Date().toISOString()
+        };
+        session.messages.push(userMsg);
+        session.updatedAt = new Date().toISOString();
+        saveSessions();
+        appendMessageToDOM(userMsg);
+        scrollToBottom(true);
+        renderSidebarSessions();
+    }
 
     // 2. Determine mode & style
     const effectiveMode = AppState.currentMode;
@@ -595,6 +619,10 @@ async function handleSendMessage() {
         };
         session.messages.push(networkErrorMsg);
         appendMessageToDOM(networkErrorMsg);
+        session.updatedAt = new Date().toISOString();
+        saveSessions();
+        renderSidebarSessions();
+        scrollToBottom(true);
     } finally {
         AppState.isGenerating = false;
         setSendButtonState(false);
@@ -623,9 +651,7 @@ function regenerateLastResponse() {
     }
 
     renderCurrentSession();
-    const textarea = document.getElementById('chatInput');
-    textarea.value = lastUserPrompt;
-    handleSendMessage();
+    handleSendMessage({ retryPrompt: lastUserPrompt });
 }
 
 // Quick suggestions click handler
@@ -795,7 +821,9 @@ function toggleSpeakMessage(msgId) {
     const cleanText = msg.content
         .replace(/```[\s\S]*?```/g, 'Code block omitted.')
         .replace(/`([^`]+)`/g, '$1')
-        .replace(/[*#_~\[\]]/g, '');
+        .replace(/[*#~\[\]]/g, '')
+        // Drop emphasis underscores (_word_) but keep snake_case intact
+        .replace(/\b_+|_+\b/g, '');
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = 1.0;
@@ -1074,6 +1102,12 @@ function setupEventListeners() {
         sidebarCloseBtn.addEventListener('click', () => {
             sidebar.classList.remove('open');
         });
+    }
+
+    // Image overlay buttons (open / download / copy prompt)
+    const chatMessagesEl = document.getElementById('chatMessages');
+    if (chatMessagesEl) {
+        chatMessagesEl.addEventListener('click', handleImageAction);
     }
 
     // Mode pills
